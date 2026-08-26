@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Issue Report</title>
+<style>
+*{box-sizing:border-box} body{font-family:Arial,sans-serif;margin:0;background:#f3f3f3;color:#111}
+.wrap{max-width:720px;margin:auto;padding:12px} h1{font-size:24px;margin:4px 0 12px}
+.card{background:#fff;border:1px solid #ccc;border-radius:8px;padding:14px;margin-bottom:12px}
+label{display:block;font-weight:bold;margin:12px 0 5px}
+input,textarea,button{width:100%;font-size:18px} input,textarea{padding:11px;border:1px solid #999;border-radius:6px}
+textarea{min-height:85px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{border:0;border-radius:7px;padding:13px;font-weight:bold;margin-top:10px;cursor:pointer}
+.primary{background:#1f5fbf;color:#fff}.secondary{background:#ddd}.danger{background:#8b1e1e;color:#fff}
+.calc{margin-top:10px;padding:11px;background:#eef2f6;border-radius:6px;font-weight:bold}
+.output{white-space:pre-wrap;border:1px solid #aaa;background:#fafafa;border-radius:6px;min-height:220px;padding:12px;line-height:1.45}
+.small{font-size:13px;color:#666;margin-top:5px}.status{font-weight:bold;margin-top:8px;min-height:20px}
+#photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px;margin-top:10px}
+#photos img{width:100%;height:95px;object-fit:cover;border:1px solid #bbb;border-radius:5px}
+@media(max-width:520px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Machine Issue Report</h1>
+
+<div class="card">
+<label for="machine">Machine / Line</label>
+<input id="machine" placeholder="Example: Line 4">
+
+<div class="row">
+<div>
+<label for="total">Total Ran</label>
+<input id="total" type="number" min="0" step="1" inputmode="numeric" placeholder="Example: 163200">
+</div>
+<div>
+<label for="gallons">Gallons in Tank</label>
+<input id="gallons" type="number" min="0" step="0.1" inputmode="decimal" placeholder="Example: 850">
+</div>
+</div>
+
+<div id="rateBox" class="calc">Run at Rate = Total Ran ÷ 20,400</div>
+
+<label for="issue">Machine / Production Issue</label>
+<textarea id="issue" placeholder="Describe the problem..."></textarea>
+
+<label for="action">Action Being Taken</label>
+<textarea id="action" placeholder="What is being done about it?"></textarea>
+
+<div class="row">
+<div>
+<label for="started">Issue Started</label>
+<input id="started" type="time">
+</div>
+<div>
+<label for="reporter">Reported By</label>
+<input id="reporter" placeholder="Optional">
+</div>
+</div>
+
+<label for="photoInput">Pictures</label>
+<input id="photoInput" type="file" accept="image/*" multiple>
+<div class="small">Choose or take pictures of the machine and issue.</div>
+<div id="photos"></div>
+
+<button class="primary" id="makeBtn" type="button">Create Report</button>
+</div>
+
+<div class="card">
+<div id="report" class="output">Fill out the information and press Create Report.</div>
+<button class="primary" id="copyBtn" type="button">Copy Report Text</button>
+<button class="secondary" id="shareBtn" type="button">Share Report</button>
+<div id="status" class="status"></div>
+</div>
+
+<button class="danger" id="clearBtn" type="button">Clear for Next Issue</button>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const total=$('total'), gallons=$('gallons'), rateBox=$('rateBox'), report=$('report'), status=$('status');
+function rate(){
+ if(total.value===''){rateBox.textContent='Run at Rate = Total Ran ÷ 20,400';return null;}
+ const r=Number(total.value)/20400;
+ rateBox.textContent='Run at Rate: '+r.toFixed(2);
+ return r;
+}
+total.addEventListener('input',rate);
+
+$('photoInput').addEventListener('change',function(){
+ $('photos').innerHTML='';
+ Array.from(this.files).slice(0,6).forEach(file=>{
+  if(!file.type.startsWith('image/'))return;
+  const img=document.createElement('img'); img.alt='Machine issue photo';
+  const u=URL.createObjectURL(file); img.src=u; img.onload=()=>URL.revokeObjectURL(u);
+  $('photos').appendChild(img);
+ });
+});
+
+function make(){
+ const d=new Date(), r=rate(), lines=[];
+ lines.push('MACHINE ISSUE REPORT','');
+ lines.push('Date: '+d.toLocaleDateString([], {year:'numeric',month:'short',day:'numeric'}));
+ lines.push('Time: '+d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));
+ if($('machine').value.trim()) lines.push('Machine / Line: '+$('machine').value.trim());
+ if(total.value!=='') lines.push('Total Ran: '+Number(total.value).toLocaleString());
+ if(r!==null) lines.push('Run at Rate: '+r.toFixed(2)+'  (Total Ran ÷ 20,400)');
+ if(gallons.value!=='') lines.push('Gallons in Tank: '+Number(gallons.value).toLocaleString(undefined,{maximumFractionDigits:2}));
+ if($('started').value){
+  const [h,m]=$('started').value.split(':').map(Number), x=new Date(); x.setHours(h,m,0,0);
+  lines.push('Issue Started: '+x.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
+ }
+ lines.push('','ISSUE: '+($('issue').value.trim()||'Not entered'));
+ if($('action').value.trim()) lines.push('','ACTION: '+$('action').value.trim());
+ if($('reporter').value.trim()) lines.push('','Reported By: '+$('reporter').value.trim());
+ const n=$('photoInput').files.length;
+ if(n) lines.push('','Photos: '+n+' attached');
+ report.textContent=lines.join('\n'); status.textContent='Report created.';
+}
+$('makeBtn').addEventListener('click',make);
+$('copyBtn').addEventListener('click',async()=>{
+ try{await navigator.clipboard.writeText(report.textContent);status.textContent='Copied — paste it into your work text thread.'}
+ catch(e){status.textContent='Copy was blocked. Select the report text and copy it manually.'}
+});
+$('shareBtn').addEventListener('click',async()=>{
+ make();
+ if(navigator.share){try{await navigator.share({title:'Machine Issue Report',text:report.textContent})}catch(e){}}
+ else status.textContent='Use Copy Report Text on this device.';
+});
+$('clearBtn').addEventListener('click',()=>{
+ ['machine','total','gallons','issue','action','reporter'].forEach(id=>$(id).value='');
+ $('photoInput').value='';$('photos').innerHTML='';report.textContent='Fill out the information and press Create Report.';
+ rateBox.textContent='Run at Rate = Total Ran ÷ 20,400';status.textContent='Ready for next issue.';
+ const d=new Date();$('started').value=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+});
+const d=new Date();$('started').value=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+})();
+</script>
+</body>
+</html>
