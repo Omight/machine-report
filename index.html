@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#ffffff">
-<title>Production Report V7</title>
+<title>Production Report V8</title>
 <style>
 *{box-sizing:border-box}
 body{font-family:Arial,sans-serif;margin:0;background:#f2f2f2;color:#111}
@@ -282,9 +282,7 @@ function signatureInfo(){
 }
 function buildEmail(){
  const reports=get(KREPORTS,[]).filter(r=>r.machine==='N-200'),runs=getRuns(),lead=signatureInfo(),a=[];
- a.push('We sanitized the machine at the beginning of shift.','');
  a.push(`Safety: ${$('safety').value.trim()||'Nothing to report at this time.'}`,'');
- a.push('Associate');
  if($('leads').value!=='')a.push(`Lead ${$('leads').value}`);
  if($('operators').value!=='')a.push(`Operator ${$('operators').value}`);
  if($('cooler').value!=='')a.push(`Cooler operator ${$('cooler').value}`);
@@ -296,6 +294,7 @@ function buildEmail(){
   a.push('Cost: '+Object.entries(by).map(([p,n])=>`lost ${Number(n).toLocaleString()} cases of ${p}`).join(', '),'');
  }
  if(runs.length){
+  a.push('We sanitized the machine at the beginning of shift.');
   runs.forEach(r=>a.push(`Started running ${r.product} at ${time12(r.start)} and finished at ${time12(r.end)}.`));
   a.push('');
   runs.forEach(r=>{if(r.total!=='')a.push(`Total carton count for ${r.product} is ${Number(r.total).toLocaleString()}.`)});
