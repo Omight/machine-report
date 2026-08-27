@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#ffffff">
-<title>Production Report V9</title>
+<title>Production Report V10</title>
 <style>
 *{box-sizing:border-box}
 body{font-family:Arial,sans-serif;margin:0;background:#f2f2f2;color:#111}
@@ -119,8 +119,8 @@ button{border:0;border-radius:7px;padding:13px;font-weight:700;margin-top:9px;cu
 
 <section id="shiftSection" class="hidden">
 <div class="card">
-<h2>N-200 Product Runs</h2>
-<div class="note">Add each product that ran. Optional flavors simply do not appear in the email unless you add them.</div>
+<h2>Add Product Run</h2>
+<div class="note">Add every product you ran this shift. You can save 1%, Chocolate, Strawberry, Orange Cream, and Cookies & Cream separately. Only saved products appear in the email.</div>
 <label for="runProduct">Product</label>
 <select id="runProduct"><option>1%</option><option>Chocolate</option><option>Strawberry</option><option>Orange Cream</option><option>Cookies & Cream</option></select>
 <div class="row">
@@ -131,7 +131,7 @@ button{border:0;border-radius:7px;padding:13px;font-weight:700;margin-top:9px;cu
 <label for="milkLeft">Milk Left (gallons)</label><input id="milkLeft" type="number" min="0" inputmode="numeric" placeholder="Blank = leave out of email">
 <label for="ptTank">Tank</label>
 <select id="ptTank"><option value="">Select only if milk remains</option><option>PT1</option><option>PT2</option><option>PT3</option><option>PT4</option><option>PT5</option><option>PT6</option><option>PT7</option><option>PT8</option><option>PT9</option></select>
-<button id="addRunBtn" class="primary" type="button">Add Product Run</button>
+<button id="addRunBtn" class="primary" type="button">Save Product Run</button>
 <div id="runList"></div>
 </div>
 
@@ -277,7 +277,22 @@ function renderRuns(){
 }
 function addRun(){
  if(!$('runStart').value||!$('runEnd').value){alert('Enter start and finish time.');return}
- const x=getRuns();x.push({product:$('runProduct').value,start:$('runStart').value,end:$('runEnd').value,total:$('runTotal').value,milk:$('milkLeft').value,tank:$('ptTank').value});put(KRUNS,x);renderRuns()
+ const x=getRuns();
+ x.push({
+  product:$('runProduct').value,
+  start:$('runStart').value,
+  end:$('runEnd').value,
+  total:$('runTotal').value,
+  milk:$('milkLeft').value,
+  tank:$('ptTank').value
+ });
+ put(KRUNS,x);
+ renderRuns();
+ $('runStart').value='';
+ $('runEnd').value='';
+ $('runTotal').value='';
+ $('milkLeft').value='';
+ $('ptTank').value='';
 }
 function minutesBetween(start,end){
  if(!start||!end)return 0;let [sh,sm]=start.split(':').map(Number),[eh,em]=end.split(':').map(Number),a=sh*60+sm,b=eh*60+em;if(b<a)b+=1440;return b-a
