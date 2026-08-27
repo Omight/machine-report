@@ -1,141 +1,365 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Machine Issue Report</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>Production Report V7</title>
 <style>
-*{box-sizing:border-box} body{font-family:Arial,sans-serif;margin:0;background:#f3f3f3;color:#111}
-.wrap{max-width:720px;margin:auto;padding:12px} h1{font-size:24px;margin:4px 0 12px}
-.card{background:#fff;border:1px solid #ccc;border-radius:8px;padding:14px;margin-bottom:12px}
-label{display:block;font-weight:bold;margin:12px 0 5px}
-input,textarea,button{width:100%;font-size:18px} input,textarea{padding:11px;border:1px solid #999;border-radius:6px}
-textarea{min-height:85px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-button{border:0;border-radius:7px;padding:13px;font-weight:bold;margin-top:10px;cursor:pointer}
-.primary{background:#1f5fbf;color:#fff}.secondary{background:#ddd}.danger{background:#8b1e1e;color:#fff}
-.calc{margin-top:10px;padding:11px;background:#eef2f6;border-radius:6px;font-weight:bold}
-.output{white-space:pre-wrap;border:1px solid #aaa;background:#fafafa;border-radius:6px;min-height:220px;padding:12px;line-height:1.45}
-.small{font-size:13px;color:#666;margin-top:5px}.status{font-weight:bold;margin-top:8px;min-height:20px}
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;margin:0;background:#f2f2f2;color:#111}
+.wrap{max-width:780px;margin:auto;padding:12px}
+h1{font-size:24px;margin:4px 0 12px}h2{font-size:20px;margin:0 0 10px}h3{font-size:17px;margin:14px 0 6px}
+.card{background:#fff;border:1px solid #bbb;border-radius:9px;padding:14px;margin:10px 0}
+.hero{border:2px solid #555}
+label{display:block;font-weight:700;margin:11px 0 5px}
+input,select,textarea,button{width:100%;font-size:17px}
+input,select,textarea{padding:11px;border:1px solid #999;border-radius:6px;background:#fff}
+textarea{min-height:78px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.big input,.big select{font-size:20px;font-weight:700;padding:13px}
+.highlight{background:#f7f7f7;border:2px solid #666;border-radius:8px;padding:10px;margin-top:10px}
+button{border:0;border-radius:7px;padding:13px;font-weight:700;margin-top:9px;cursor:pointer}
+.primary{background:#195db8;color:#fff}.secondary{background:#ddd;color:#111}.danger{background:#8b1e1e;color:#fff}
+.smallbtn{width:auto;padding:8px 11px;font-size:14px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.tabs button{margin:0;background:#ddd;color:#111}.tabs button.active{background:#195db8;color:#fff}
+.output{white-space:pre-wrap;background:#fafafa;border:1px solid #aaa;padding:12px;border-radius:6px;line-height:1.45;font-size:17px;min-height:180px}
+.hidden{display:none!important}.small{font-size:13px;color:#666;margin-top:5px}.status{font-weight:700;min-height:20px;margin-top:8px}
+.saved{border-top:1px solid #ddd;padding:10px 0}.saved:first-child{border-top:0}
+.preview-signature{margin-top:18px;line-height:1.35}.maola{color:#b00000;font-weight:700}
 #photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px;margin-top:10px}
 #photos img{width:100%;height:95px;object-fit:cover;border:1px solid #bbb;border-radius:5px}
-@media(max-width:520px){.row{grid-template-columns:1fr}}
+.note{background:#f6f6f6;border-left:4px solid #777;padding:9px;margin-top:9px}
+@media(max-width:560px){.row,.tabs{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>Machine Issue Report</h1>
+<h1>Production Report</h1>
 
-<div class="card">
-<label for="machine">Machine / Line</label>
-<input id="machine" placeholder="Example: Line 4">
+<div class="tabs">
+<button id="tabHourly" class="active" type="button">Hourly Report</button>
+<button id="tabShift" type="button">N-200 End of Shift</button>
+<button id="tabSetup" type="button">Setup</button>
+</div>
 
+<section id="hourlySection">
+<div class="card hero">
+<h2>Hourly Report</h2>
+<div class="row big">
+<div><label for="hour">Report Hour</label><select id="hour"></select></div>
+<div><label for="machine">Machine</label>
+<select id="machine">
+<option>Filler 1</option><option>Filler 2</option><option>Filler 3</option><option>Filler 4</option><option>N-200</option>
+</select></div>
+</div>
+
+<div id="fillerFields">
+<label for="fillerRate">Rate / Hour</label>
+<input id="fillerRate" class="big" type="number" min="0" inputmode="numeric">
+<div class="small">Defaults: Filler 1 = 600/hr, Filler 2 = 650/hr, Filler 3 = 300/hr, Filler 4 = 900/hr. You can change the number for the actual hour.</div>
+</div>
+
+<div id="n200Fields" class="hidden">
+<label for="product">Product Running</label>
+<select id="product" class="big">
+<option>1%</option><option>Chocolate</option><option>Strawberry</option><option>Orange Cream</option><option>Cookies & Cream</option>
+</select>
 <div class="row">
-<div>
-<label for="total">Total Ran</label>
-<input id="total" type="number" min="0" step="1" inputmode="numeric" placeholder="Example: 163200">
-</div>
-<div>
-<label for="gallons">Gallons in Tank</label>
-<input id="gallons" type="number" min="0" step="0.1" inputmode="decimal" placeholder="Example: 850">
+<div><label for="cartons">Cartons Ran</label><input id="cartons" type="number" min="0" inputmode="numeric"></div>
+<div><label for="gallons">Gallons Left</label><input id="gallons" type="number" min="0" inputmode="numeric"></div>
 </div>
 </div>
 
-<div id="rateBox" class="calc">Run at Rate = Total Ran ÷ 20,400</div>
-
-<label for="issue">Machine / Production Issue</label>
-<textarea id="issue" placeholder="Describe the problem..."></textarea>
-
-<label for="action">Action Being Taken</label>
-<textarea id="action" placeholder="What is being done about it?"></textarea>
-
-<div class="row">
-<div>
-<label for="started">Issue Started</label>
-<input id="started" type="time">
-</div>
-<div>
-<label for="reporter">Reported By</label>
-<input id="reporter" placeholder="Optional">
-</div>
+<div class="highlight">
+<label for="downtime">Downtime Minutes</label>
+<input id="downtime" type="number" min="0" inputmode="numeric" value="0">
+<label for="reason">Downtime Reason</label>
+<select id="reason"></select>
+<button id="addReasonBtn" class="secondary smallbtn" type="button">+ Add New Reason</button>
+<div class="small">Add a reason once (example: Jam up on Line 4), then select it from this machine's list next time.</div>
 </div>
 
-<label for="photoInput">Pictures</label>
+<label for="casesLost">Cases Lost</label>
+<input id="casesLost" type="number" min="0" inputmode="numeric" placeholder="Optional">
+<label for="notes">Downtime / Issue Notes</label>
+<textarea id="notes" placeholder="Optional"></textarea>
+<label for="photoInput">Downtime Picture</label>
 <input id="photoInput" type="file" accept="image/*" multiple>
-<div class="small">Choose or take pictures of the machine and issue.</div>
 <div id="photos"></div>
+<label for="reporter">Report Completed By</label>
+<input id="reporter">
 
-<button class="primary" id="makeBtn" type="button">Create Report</button>
+<button id="createTextBtn" class="primary" type="button">Create Hourly Text</button>
+<button id="saveReportBtn" class="secondary" type="button">Save to Current Shift</button>
 </div>
 
 <div class="card">
-<div id="report" class="output">Fill out the information and press Create Report.</div>
-<button class="primary" id="copyBtn" type="button">Copy Report Text</button>
-<button class="secondary" id="shareBtn" type="button">Share Report</button>
-<div id="status" class="status"></div>
+<h2>Text Thread Report</h2>
+<div id="hourlyOutput" class="output">Your hourly text will appear here.</div>
+<button id="copyTextBtn" class="primary" type="button">Copy Report Text</button>
+<button id="shareTextBtn" class="secondary" type="button">Share Text + Picture</button>
+<div id="hourlyStatus" class="status"></div>
 </div>
 
-<button class="danger" id="clearBtn" type="button">Clear for Next Issue</button>
+<div class="card">
+<h2>Current Shift Reports</h2>
+<div id="savedReports">No reports saved in this shift yet.</div>
+<button id="clearShiftBtn" class="danger" type="button">Clear Shift Reports Manually</button>
+<div class="small">Reports stay here across midnight until you clear them.</div>
+</div>
+</section>
+
+<section id="shiftSection" class="hidden">
+<div class="card">
+<h2>N-200 Product Runs</h2>
+<div class="note">Add each product that ran. Optional flavors simply do not appear in the email unless you add them.</div>
+<label for="runProduct">Product</label>
+<select id="runProduct"><option>1%</option><option>Chocolate</option><option>Strawberry</option><option>Orange Cream</option><option>Cookies & Cream</option></select>
+<div class="row">
+<div><label for="runStart">Start Time</label><input id="runStart" type="time"></div>
+<div><label for="runEnd">Finish Time</label><input id="runEnd" type="time"></div>
+</div>
+<label for="runTotal">Total Cartons Ran</label><input id="runTotal" type="number" min="0" inputmode="numeric">
+<label for="milkLeft">Milk Left (gallons)</label><input id="milkLeft" type="number" min="0" inputmode="numeric" placeholder="Blank = leave out of email">
+<label for="ptTank">Tank</label>
+<select id="ptTank"><option value="">Select only if milk remains</option><option>PT1</option><option>PT2</option><option>PT3</option><option>PT4</option><option>PT5</option><option>PT6</option><option>PT7</option><option>PT8</option><option>PT9</option></select>
+<button id="addRunBtn" class="primary" type="button">Add Product Run</button>
+<div id="runList"></div>
+</div>
+
+<div class="card">
+<h2>Staffing</h2>
+<div class="row">
+<div><label for="operators">Operators</label><input id="operators" type="number" min="0" inputmode="numeric"></div>
+<div><label for="leads">Leads</label><input id="leads" type="number" min="0" inputmode="numeric"></div>
+<div><label for="relief">Relief Operators</label><input id="relief" type="number" min="0" inputmode="numeric"></div>
+<div><label for="cooler">Cooler Personnel</label><input id="cooler" type="number" min="0" inputmode="numeric"></div>
+</div>
+</div>
+
+<div class="card">
+<h2>N-200 End-of-Shift Email</h2>
+<label for="shiftLead">Shift Lead</label>
+<select id="shiftLead"><option value="nathan">Nathan Shane Ridings — 2nd Shift</option><option value="dc">DC — 1st Shift</option></select>
+
+<label for="recipients">To / Distribution Group</label>
+<input id="recipients" placeholder="Enter the Maola group email or recipients">
+<label for="cc">CC (optional)</label>
+<input id="cc" placeholder="Optional">
+
+<label for="safety">Safety</label>
+<input id="safety" value="Nothing to report at this time.">
+<label for="shiftNotes">Additional Shift Notes</label>
+<textarea id="shiftNotes" placeholder="Optional"></textarea>
+
+<button id="buildEmailBtn" class="primary" type="button">Build N-200 Email</button>
+<div id="emailPreview" class="output">Your N-200 email will appear here.</div>
+<div id="signaturePreview" class="preview-signature"></div>
+<button id="openEmailBtn" class="primary" type="button">Open Email App</button>
+<button id="copyEmailBtn" class="secondary" type="button">Copy Email</button>
+<div class="small">The email app will use whichever work email account is currently logged in. We are not storing your email password.</div>
+<div id="emailStatus" class="status"></div>
+</div>
+</section>
+
+<section id="setupSection" class="hidden">
+<div class="card">
+<h2>Downtime Reasons</h2>
+<label for="manageMachine">Machine</label>
+<select id="manageMachine"><option>Filler 1</option><option>Filler 2</option><option>Filler 3</option><option>Filler 4</option><option>N-200</option></select>
+<div id="reasonList"></div>
+<button id="manageAddReason" class="primary" type="button">Add Reason for This Machine</button>
+</div>
+
+<div class="card">
+<h2>Maintenance Dates</h2>
+<label for="airFilters">Air Filters - Last Changed</label><input id="airFilters" type="date">
+<label for="suctionCups">Outfeed Suction Cups - Last Changed</label><input id="suctionCups" type="date">
+<label for="hepa">HEPA Filter - Last Changed</label><input id="hepa" type="date">
+<button id="saveMaintBtn" class="primary" type="button">Save Maintenance Dates</button>
+</div>
+</section>
 </div>
 
 <script>
 (function(){
 const $=id=>document.getElementById(id);
-const total=$('total'), gallons=$('gallons'), rateBox=$('rateBox'), report=$('report'), status=$('status');
-function rate(){
- if(total.value===''){rateBox.textContent='Run at Rate = Total Ran ÷ 20,400';return null;}
- const r=Number(total.value)/20400;
- rateBox.textContent='Run at Rate: '+r.toFixed(2);
- return r;
+const KREPORTS='prodV7_reports',KREASONS='prodV7_reasons',KRUNS='prodV7_runs',KMAINT='prodV7_maint',KSET='prodV7_settings';
+const defaults={
+ 'Filler 1':['Changeover'],'Filler 2':['Changeover'],'Filler 3':['Changeover'],'Filler 4':['Changeover'],'N-200':['Changeover']
+};
+const fillerRates={'Filler 1':600,'Filler 2':650,'Filler 3':300,'Filler 4':900};
+const get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(d))}catch{return d}};
+const put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+
+function buildHours(){for(let h=0;h<24;h++){const o=document.createElement('option'),d=new Date();d.setHours(h,0,0,0);o.value=h;o.textContent=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});$('hour').appendChild(o)}$('hour').value=new Date().getHours()}
+function hourLabel(v){const d=new Date();d.setHours(Number(v),0,0,0);return d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
+function time12(v){if(!v)return'';const [h,m]=v.split(':').map(Number),d=new Date();d.setHours(h,m,0,0);return d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
+function fmtDate(v){if(!v)return'';const [y,m,d]=v.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString()}
+
+function currentReasons(){return get(KREASONS,defaults)}
+function refreshReasons(){
+ const arr=currentReasons()[$('machine').value]||[];$('reason').innerHTML='';
+ const blank=document.createElement('option');blank.value='';blank.textContent='Select if downtime occurred';$('reason').appendChild(blank);
+ arr.forEach(r=>{const o=document.createElement('option');o.value=o.textContent=r;$('reason').appendChild(o)})
 }
-total.addEventListener('input',rate);
-
-$('photoInput').addEventListener('change',function(){
- $('photos').innerHTML='';
- Array.from(this.files).slice(0,6).forEach(file=>{
-  if(!file.type.startsWith('image/'))return;
-  const img=document.createElement('img'); img.alt='Machine issue photo';
-  const u=URL.createObjectURL(file); img.src=u; img.onload=()=>URL.revokeObjectURL(u);
-  $('photos').appendChild(img);
- });
-});
-
-function make(){
- const d=new Date(), r=rate(), lines=[];
- lines.push('MACHINE ISSUE REPORT','');
- lines.push('Date: '+d.toLocaleDateString([], {year:'numeric',month:'short',day:'numeric'}));
- lines.push('Time: '+d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));
- if($('machine').value.trim()) lines.push('Machine / Line: '+$('machine').value.trim());
- if(total.value!=='') lines.push('Total Ran: '+Number(total.value).toLocaleString());
- if(r!==null) lines.push('Run at Rate: '+r.toFixed(2)+'  (Total Ran ÷ 20,400)');
- if(gallons.value!=='') lines.push('Gallons in Tank: '+Number(gallons.value).toLocaleString(undefined,{maximumFractionDigits:2}));
- if($('started').value){
-  const [h,m]=$('started').value.split(':').map(Number), x=new Date(); x.setHours(h,m,0,0);
-  lines.push('Issue Started: '+x.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
+function addReason(machine){
+ const n=prompt('Enter new downtime reason for '+machine+':');if(!n||!n.trim())return;
+ const x=currentReasons();x[machine]=x[machine]||[];const clean=n.trim();
+ if(!x[machine].some(v=>v.toLowerCase()===clean.toLowerCase()))x[machine].push(clean);
+ put(KREASONS,x);refreshReasons();renderReasonManager()
+}
+function renderReasonManager(){
+ const machine=$('manageMachine').value,x=currentReasons(),box=$('reasonList');box.innerHTML='';
+ (x[machine]||[]).forEach((r,i)=>{const d=document.createElement('div');d.className='saved';d.textContent=r+' ';const b=document.createElement('button');b.type='button';b.className='secondary smallbtn';b.textContent='Delete';b.onclick=()=>{const y=currentReasons();y[machine].splice(i,1);put(KREASONS,y);renderReasonManager();refreshReasons()};d.appendChild(b);box.appendChild(d)})
+}
+function machineChanged(){
+ const m=$('machine').value,isN=m==='N-200';
+ $('fillerFields').classList.toggle('hidden',isN);$('n200Fields').classList.toggle('hidden',!isN);
+ if(!isN)$('fillerRate').value=fillerRates[m];
+ refreshReasons()
+}
+function reportObject(){
+ const m=$('machine').value,isN=m==='N-200';
+ return{
+  id:Date.now(),hour:Number($('hour').value),hourLabel:hourLabel($('hour').value),machine:m,
+  product:isN?$('product').value:'',rate:isN?null:Number($('fillerRate').value||0),
+  cartons:isN?Number($('cartons').value||0):null,gallons:isN&&$('gallons').value!==''?Number($('gallons').value):null,
+  downtime:Number($('downtime').value||0),reason:$('reason').value,casesLost:$('casesLost').value===''?null:Number($('casesLost').value),
+  notes:$('notes').value.trim(),photoCount:$('photoInput').files.length,reporter:$('reporter').value.trim()
  }
- lines.push('','ISSUE: '+($('issue').value.trim()||'Not entered'));
- if($('action').value.trim()) lines.push('','ACTION: '+$('action').value.trim());
- if($('reporter').value.trim()) lines.push('','Reported By: '+$('reporter').value.trim());
- const n=$('photoInput').files.length;
- if(n) lines.push('','Photos: '+n+' attached');
- report.textContent=lines.join('\n'); status.textContent='Report created.';
 }
-$('makeBtn').addEventListener('click',make);
-$('copyBtn').addEventListener('click',async()=>{
- try{await navigator.clipboard.writeText(report.textContent);status.textContent='Copied — paste it into your work text thread.'}
- catch(e){status.textContent='Copy was blocked. Select the report text and copy it manually.'}
-});
-$('shareBtn').addEventListener('click',async()=>{
- make();
- if(navigator.share){try{await navigator.share({title:'Machine Issue Report',text:report.textContent})}catch(e){}}
- else status.textContent='Use Copy Report Text on this device.';
-});
-$('clearBtn').addEventListener('click',()=>{
- ['machine','total','gallons','issue','action','reporter'].forEach(id=>$(id).value='');
- $('photoInput').value='';$('photos').innerHTML='';report.textContent='Fill out the information and press Create Report.';
- rateBox.textContent='Run at Rate = Total Ran ÷ 20,400';status.textContent='Ready for next issue.';
- const d=new Date();$('started').value=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-});
-const d=new Date();$('started').value=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+function makeHourlyText(){
+ const r=reportObject(),a=[];
+ if(r.machine==='N-200'){
+  a.push(`Hourly Report - N-200 - ${r.hourLabel}`,'',r.product,'',`${r.cartons.toLocaleString()} cartons ran`,`${r.downtime} minutes of downtime`);
+  if(r.gallons!==null)a.push(`${r.gallons.toLocaleString()} gallons left`);
+ }else{
+  a.push(`${r.machine} - ${r.hourLabel}`,`${r.rate.toLocaleString()}/hr`,`${r.downtime} minutes of downtime`);
+ }
+ if(r.downtime===0)a.push('No issues at this time');
+ else{
+  if(r.reason)a.push(`Downtime reason: ${r.reason}`);
+  if(r.casesLost!==null)a.push(`Cases lost: ${r.casesLost.toLocaleString()}`);
+  if(r.notes)a.push(r.notes);
+  if(r.photoCount)a.push('Picture in text thread');
+ }
+ if(r.reporter)a.push('',`Reported by: ${r.reporter}`);
+ $('hourlyOutput').textContent=a.join('\n');return r
+}
+function saveReport(){
+ const r=makeHourlyText(),x=get(KREPORTS,[]);
+ if(!r.reporter){$('hourlyStatus').textContent='Enter who completed the report before saving.';return}
+ x.push(r);put(KREPORTS,x);renderReports();$('hourlyStatus').textContent='Saved to current shift.'
+}
+function renderReports(){
+ const x=get(KREPORTS,[]),box=$('savedReports');if(!x.length){box.textContent='No reports saved in this shift yet.';return}
+ box.innerHTML='';x.forEach((r,i)=>{const d=document.createElement('div');d.className='saved';
+ d.innerHTML=`<strong>${r.hourLabel} — ${r.machine}${r.product?' — '+r.product:''}</strong><div>${r.machine==='N-200'?r.cartons.toLocaleString()+' cartons':r.rate.toLocaleString()+'/hr'} • ${r.downtime} min downtime</div>`;
+ const b=document.createElement('button');b.type='button';b.className='secondary smallbtn';b.textContent='Delete';b.onclick=()=>{const y=get(KREPORTS,[]);y.splice(i,1);put(KREPORTS,y);renderReports()};d.appendChild(b);box.appendChild(d)})
+}
+
+function getRuns(){return get(KRUNS,[])}
+function renderRuns(){
+ const x=getRuns(),box=$('runList');if(!x.length){box.textContent='No product runs added.';return}
+ box.innerHTML='';x.forEach((r,i)=>{const d=document.createElement('div');d.className='saved';
+ let t=`${r.product}: ${time12(r.start)} to ${time12(r.end)} — ${Number(r.total||0).toLocaleString()} cartons`;
+ if(r.milk!=='')t+=` — ${Number(r.milk).toLocaleString()} gal left${Number(r.milk)>0&&r.tank?' — '+r.tank:''}`;
+ d.textContent=t+' ';const b=document.createElement('button');b.type='button';b.className='secondary smallbtn';b.textContent='Delete';b.onclick=()=>{const y=getRuns();y.splice(i,1);put(KRUNS,y);renderRuns()};d.appendChild(b);box.appendChild(d)})
+}
+function addRun(){
+ if(!$('runStart').value||!$('runEnd').value){alert('Enter start and finish time.');return}
+ const x=getRuns();x.push({product:$('runProduct').value,start:$('runStart').value,end:$('runEnd').value,total:$('runTotal').value,milk:$('milkLeft').value,tank:$('ptTank').value});put(KRUNS,x);renderRuns()
+}
+function minutesBetween(start,end){
+ if(!start||!end)return 0;let [sh,sm]=start.split(':').map(Number),[eh,em]=end.split(':').map(Number),a=sh*60+sm,b=eh*60+em;if(b<a)b+=1440;return b-a
+}
+function signatureInfo(){
+ if($('shiftLead').value==='nathan')return{name:'Nathan Shane Ridings',shift:'2nd Shift',subject:'2nd Shift End of Shift Report'};
+ return{name:'DC',shift:'1st Shift',subject:'1st Shift End of Shift Report'}
+}
+function buildEmail(){
+ const reports=get(KREPORTS,[]).filter(r=>r.machine==='N-200'),runs=getRuns(),lead=signatureInfo(),a=[];
+ a.push('We sanitized the machine at the beginning of shift.','');
+ a.push(`Safety: ${$('safety').value.trim()||'Nothing to report at this time.'}`,'');
+ a.push('Associate');
+ if($('leads').value!=='')a.push(`Lead ${$('leads').value}`);
+ if($('operators').value!=='')a.push(`Operator ${$('operators').value}`);
+ if($('cooler').value!=='')a.push(`Cooler operator ${$('cooler').value}`);
+ if($('relief').value!=='')a.push(`Relief operator ${$('relief').value}`);
+ a.push('');
+ const lost=reports.filter(r=>r.casesLost!==null&&r.casesLost>0);
+ if(lost.length){
+  const by={};lost.forEach(r=>{by[r.product]=(by[r.product]||0)+r.casesLost});
+  a.push('Cost: '+Object.entries(by).map(([p,n])=>`lost ${Number(n).toLocaleString()} cases of ${p}`).join(', '),'');
+ }
+ if(runs.length){
+  runs.forEach(r=>a.push(`Started running ${r.product} at ${time12(r.start)} and finished at ${time12(r.end)}.`));
+  a.push('');
+  runs.forEach(r=>{if(r.total!=='')a.push(`Total carton count for ${r.product} is ${Number(r.total).toLocaleString()}.`)});
+  a.push('');
+  runs.forEach(r=>{if(r.milk!==''){a.push(`${r.product} milk left: ${Number(r.milk).toLocaleString()} gallons.`);if(Number(r.milk)>0&&r.tank)a.push(`Tank: ${r.tank}.`)}}); 
+  if(runs.some(r=>r.milk!==''))a.push('');
+  const totalMinutes=runs.reduce((s,r)=>s+minutesBetween(r.start,r.end),0);
+  const allDowntime=reports.reduce((s,r)=>s+Number(r.downtime||0),0);
+  const actualRunMinutes=Math.max(0,totalMinutes-allDowntime);
+  const totalCartons=runs.reduce((s,r)=>s+Number(r.total||0),0);
+  if(actualRunMinutes>0&&totalCartons>0)a.push(`Average cartons per running hour: ${Math.round(totalCartons/(actualRunMinutes/60)).toLocaleString()}.`,'');
+ }
+ const down=reports.filter(r=>Number(r.downtime)>0);
+ if(down.length){
+  a.push('Downtime');
+  down.forEach(r=>{
+   let line=`${r.hourLabel} — ${r.downtime} minutes`;
+   if(r.reason)line+=` — ${r.reason}`;
+   a.push(line);
+   if(r.casesLost!==null&&r.casesLost>0)a.push(`Cases lost: ${r.casesLost.toLocaleString()} — ${r.product}`);
+   if(r.notes)a.push(r.notes);
+   if(r.photoCount)a.push('Picture in text thread');
+  });
+  a.push('');
+ }
+ const m=get(KMAINT,{});
+ if(m.air)a.push(`Air filters last changed on ${fmtDate(m.air)}.`);
+ if(m.cups)a.push(`Outfeed suction cups last changed on ${fmtDate(m.cups)}.`);
+ if(m.hepa)a.push(`HEPA filter last changed on ${fmtDate(m.hepa)}.`);
+ if(m.air||m.cups||m.hepa)a.push('');
+ if($('shiftNotes').value.trim())a.push($('shiftNotes').value.trim(),'');
+ if(lead.name==='Nathan Shane Ridings')a.push('Ricky the corrugated lines are ready to be washed.','');
+ a.push('Regards,','',lead.name,'MAOLA MILK',`N-200 | ${lead.shift} Lead`);
+ $('emailPreview').textContent=a.join('\n');
+ $('signaturePreview').innerHTML=`<strong>${lead.name}</strong><br><span class="maola">MAOLA MILK</span><br>N-200 | ${lead.shift} Lead`;
+ return{body:a.join('\n'),subject:lead.subject}
+}
+
+function loadSettings(){
+ const s=get(KSET,{});$('recipients').value=s.recipients||'';$('cc').value=s.cc||'';$('reporter').value=s.reporter||'';
+ const m=get(KMAINT,{});$('airFilters').value=m.air||'';$('suctionCups').value=m.cups||'';$('hepa').value=m.hepa||''
+}
+function saveSettings(){
+ put(KSET,{recipients:$('recipients').value.trim(),cc:$('cc').value.trim(),reporter:$('reporter').value.trim()})
+}
+function switchTab(t){
+ $('hourlySection').classList.toggle('hidden',t!=='h');$('shiftSection').classList.toggle('hidden',t!=='e');$('setupSection').classList.toggle('hidden',t!=='s');
+ $('tabHourly').classList.toggle('active',t==='h');$('tabShift').classList.toggle('active',t==='e');$('tabSetup').classList.toggle('active',t==='s');
+ if(t==='e'){renderRuns();buildEmail()}if(t==='s')renderReasonManager()
+}
+
+$('tabHourly').onclick=()=>switchTab('h');$('tabShift').onclick=()=>switchTab('e');$('tabSetup').onclick=()=>switchTab('s');
+$('machine').onchange=machineChanged;$('addReasonBtn').onclick=()=>addReason($('machine').value);$('manageMachine').onchange=renderReasonManager;$('manageAddReason').onclick=()=>addReason($('manageMachine').value);
+$('photoInput').onchange=function(){$('photos').innerHTML='';Array.from(this.files).slice(0,6).forEach(f=>{if(!f.type.startsWith('image/'))return;const img=document.createElement('img'),u=URL.createObjectURL(f);img.src=u;img.onload=()=>URL.revokeObjectURL(u);$('photos').appendChild(img)})};
+$('createTextBtn').onclick=()=>{makeHourlyText();$('hourlyStatus').textContent='Hourly text created.'};$('saveReportBtn').onclick=()=>{saveSettings();saveReport()};
+$('copyTextBtn').onclick=async()=>{try{await navigator.clipboard.writeText($('hourlyOutput').textContent);$('hourlyStatus').textContent='Copied.'}catch{$('hourlyStatus').textContent='Press and hold the text to copy.'}};
+$('shareTextBtn').onclick=async()=>{makeHourlyText();if(!navigator.share)return;const files=Array.from($('photoInput').files||[]),d={text:$('hourlyOutput').textContent};if(files.length&&navigator.canShare&&navigator.canShare({files}))d.files=files;try{await navigator.share(d)}catch{}};
+$('clearShiftBtn').onclick=()=>{if(confirm('Clear ALL saved shift reports and N-200 product runs?')){put(KREPORTS,[]);put(KRUNS,[]);renderReports();renderRuns()}};
+$('addRunBtn').onclick=addRun;$('buildEmailBtn').onclick=()=>{saveSettings();buildEmail();$('emailStatus').textContent='Email built.'};
+$('shiftLead').onchange=buildEmail;$('copyEmailBtn').onclick=async()=>{const e=buildEmail();try{await navigator.clipboard.writeText(e.body);$('emailStatus').textContent='Email copied.'}catch{}};
+$('openEmailBtn').onclick=()=>{saveSettings();const e=buildEmail(),to=$('recipients').value.trim(),cc=$('cc').value.trim();let url='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(e.subject)+'&body='+encodeURIComponent(e.body);if(cc)url+='&cc='+encodeURIComponent(cc);location.href=url};
+$('saveMaintBtn').onclick=()=>put(KMAINT,{air:$('airFilters').value,cups:$('suctionCups').value,hepa:$('hepa').value});
+
+buildHours();loadSettings();machineChanged();renderReports();renderRuns();renderReasonManager();
 })();
 </script>
 </body>
