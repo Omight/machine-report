@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#ffffff">
-<title>Production Report V8</title>
+<title>Production Report V9</title>
 <style>
 *{box-sizing:border-box}
 body{font-family:Arial,sans-serif;margin:0;background:#f2f2f2;color:#111}
@@ -45,6 +45,12 @@ button{border:0;border-radius:7px;padding:13px;font-weight:700;margin-top:9px;cu
 </div>
 
 <section id="hourlySection">
+<div class="card">
+<h2>Shift Control</h2>
+<button id="startNewShiftBtn" class="danger" type="button">Start New Shift</button>
+<div class="small">Clears hourly reports, N-200 product runs, staffing, safety and shift notes. Keeps downtime reasons, maintenance dates, recipients and your saved setup.</div>
+<div id="newShiftStatus" class="status"></div>
+</div>
 <div class="card hero">
 <h2>Hourly Report</h2>
 <div class="row big">
@@ -340,12 +346,41 @@ function loadSettings(){
 function saveSettings(){
  put(KSET,{recipients:$('recipients').value.trim(),cc:$('cc').value.trim(),reporter:$('reporter').value.trim()})
 }
+
+function startNewShift(){
+ if(!confirm('Start a new shift? This clears the previous shift production reports, product runs, staffing and temporary shift information. Saved setup, downtime reasons, maintenance dates and email recipients will remain.'))return;
+ put(KREPORTS,[]);
+ put(KRUNS,[]);
+ $('operators').value='';
+ $('leads').value='';
+ $('relief').value='';
+ $('cooler').value='';
+ $('safety').value='Nothing to report at this time.';
+ $('shiftNotes').value='';
+ $('cartons').value='';
+ $('gallons').value='';
+ $('downtime').value='0';
+ $('casesLost').value='';
+ $('notes').value='';
+ $('runStart').value='';
+ $('runEnd').value='';
+ $('runTotal').value='';
+ $('milkLeft').value='';
+ $('ptTank').value='';
+ $('hourlyOutput').textContent='Your hourly text will appear here.';
+ $('emailPreview').textContent='Your N-200 email will appear here.';
+ renderReports();
+ renderRuns();
+ $('newShiftStatus').textContent='New shift started. Previous shift production data cleared.';
+}
+
 function switchTab(t){
  $('hourlySection').classList.toggle('hidden',t!=='h');$('shiftSection').classList.toggle('hidden',t!=='e');$('setupSection').classList.toggle('hidden',t!=='s');
  $('tabHourly').classList.toggle('active',t==='h');$('tabShift').classList.toggle('active',t==='e');$('tabSetup').classList.toggle('active',t==='s');
  if(t==='e'){renderRuns();buildEmail()}if(t==='s')renderReasonManager()
 }
 
+$('startNewShiftBtn').onclick=startNewShift;
 $('tabHourly').onclick=()=>switchTab('h');$('tabShift').onclick=()=>switchTab('e');$('tabSetup').onclick=()=>switchTab('s');
 $('machine').onchange=machineChanged;$('addReasonBtn').onclick=()=>addReason($('machine').value);$('manageMachine').onchange=renderReasonManager;$('manageAddReason').onclick=()=>addReason($('manageMachine').value);
 $('photoInput').onchange=function(){$('photos').innerHTML='';Array.from(this.files).slice(0,6).forEach(f=>{if(!f.type.startsWith('image/'))return;const img=document.createElement('img'),u=URL.createObjectURL(f);img.src=u;img.onload=()=>URL.revokeObjectURL(u);$('photos').appendChild(img)})};
