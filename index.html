@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#ffffff">
-<title>Production Report V12</title>
+<title>Production Report V13</title>
 <style>
 *{box-sizing:border-box}
 body{font-family:Arial,sans-serif;margin:0;background:#f2f2f2;color:#111}
@@ -242,7 +242,7 @@ function makeHourlyText(){
  if(r.machine==='N-200'){
   a.push(`Hourly Report - N-200 - ${r.hourLabel}`,'',r.product,'',`${r.cartons.toLocaleString()} cartons ran`,`${r.downtime} minutes of downtime`);
   if(r.gallons!==null)a.push(`${r.gallons.toLocaleString()} gallons left`);
-  if(r.reporter.toLowerCase().includes('shane')) a.push('',`Do not shutdown the N-200 unless it's very last resort`);
+  if(r.reporter.toLowerCase().includes('shane')) a.push('',`Don't shut down unless you have no options.`);
  }else{
   a.push(`${r.machine} - ${r.hourLabel}`,`${r.rate.toLocaleString()}/hr`,`${r.downtime} minutes of downtime`);
  }
